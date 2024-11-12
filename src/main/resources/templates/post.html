@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .editor-container {
+            width: 50%;
+            max-width: 900px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .toolbar {
+            background-color: #eee;
+            padding: 10px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        .toolbar button:hover {
+            background-color: #0056b3;
+        }
+
+        #editor {
+            padding: 20px;
+            min-height: 300px;
+            outline: none;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        #preview {
+            width: 50%;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="editor-container">
+    <div class="toolbar">
+        <!-- Basic Formatting -->
+        <button onclick="formatText('bold')">Bold</button>
+        <button onclick="formatText('italic')">Italic</button>
+        <button onclick="formatText('underline')">Underline</button>
+
+        <!-- Paragraph and Header Tags -->
+        <button onclick="insertTag('p')">Paragraph</button>
+        <button onclick="insertTag('h1')">H1</button>
+        <button onclick="insertTag('h2')">H2</button>
+        <button onclick="insertTag('h3')">H3</button>
+
+        <!-- List and Link -->
+        <button onclick="formatText('insertUnorderedList')">Bullet List</button>
+        <button onclick="formatText('insertOrderedList')">Numbered List</button>
+        <button onclick="addLink()">Add Link</button>
+
+        <!-- Table -->
+        <button onclick="addTable()">Insert Table</button>
+
+        <!-- Save -->
+        <button onclick="saveText()">Save</button>
+    </div>
+    <div id="editor" contenteditable="true" placeholder="Start typing here..."></div>
+
+</div>
+<div id="preview"></div>
+<button onclick="updatePreview()">Preview</button>
+
+<script>
+    // Function to apply basic formatting
+    function formatText(command) {
+        document.execCommand(command, false, null);
+        updatePreview();
+    }
+
+    // Function to insert paragraph and header tags
+    function insertTag(tag) {
+        const editor = document.getElementById('editor');
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        const element = document.createElement(tag);
+        element.textContent = selection.toString() || "Your " + tag + " text here";
+        range.deleteContents();
+        range.insertNode(element);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        updatePreview()
+    }
+
+    // Function to add a link
+    function addLink() {
+        const url = prompt("Enter the URL:");
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+        updatePreview();
+    }
+
+    // Function to add a table
+    function addTable() {
+        const rows = prompt("Enter number of rows:", "2");
+        const cols = prompt("Enter number of columns:", "2");
+        if (rows > 0 && cols > 0) {
+            const table = document.createElement('table');
+            table.style.width = "100%";
+            table.style.border = "1px solid #ddd";
+            for (let i = 0; i < rows; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < cols; j++) {
+                    const cell = document.createElement('td');
+                    cell.textContent = "Cell";
+                    cell.style.border = "1px solid #ddd";
+                    cell.style.padding = "8px";
+                    row.appendChild(cell);
+                }
+                table.appendChild(row);
+            }
+            document.getElementById('editor').appendChild(table);
+        }
+    }
+
+    // Function to save text to local storage
+    function saveText() {
+        const content = document.getElementById('editor').innerHTML;
+        localStorage.setItem('savedText', content);
+        alert('Text saved!');
+    }
+
+    // Load saved content if available
+    window.onload = () => {
+        const savedContent = localStorage.getItem('savedText');
+        if (savedContent) {
+            document.getElementById('editor').innerHTML = savedContent;
+        }
+    }
+    function updatePreview() {
+        const editorContent = document.getElementById('editor').value;
+        document.getElementById('preview').innerHTML = editorContent;
+    }
+</script>
+
+</body>
+</html>
